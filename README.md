@@ -38,7 +38,7 @@ python -m pytest
 
 - **FastAPI** används för att ta emot och validera HTTP-anrop med JSON.
 - **Uvicorn** kör FastAPI-applikationen som en lokal webbserver.
-- **HTTPX** används av API-testerna för att skicka testanrop utan att starta
+- **HTTPX2** används av API-testerna för att skicka testanrop utan att starta
   servern manuellt.
 
 Projektet använder dessa små, avgränsade verktyg i stället för ett större
