@@ -1,13 +1,12 @@
-from math import sqrt
 import string
+from math import sqrt
+
 
 def word_frequencies(text: str) -> dict[str, int]:
-
-    
     cleaned_text = text.lower().translate(
-    str.maketrans("", "", string.punctuation)
+        str.maketrans("", "", string.punctuation)
     )
-    
+
     words = cleaned_text.split()
     frequencies: dict[str, int] = {}
 
@@ -21,8 +20,7 @@ def cosine_similarity(
     first: dict[str, int],
     second: dict[str, int],
 ) -> float:
-    
-    all_words = set(first) | set(second) 
+    all_words = set(first) | set(second)
 
     dot_product = 0
     first_squared_sum = 0
@@ -40,6 +38,6 @@ def cosine_similarity(
     second_length = sqrt(second_squared_sum)
 
     if first_length == 0 or second_length == 0:
-       return 0.0
-    
+        return 0.0
+
     return dot_product / (first_length * second_length)

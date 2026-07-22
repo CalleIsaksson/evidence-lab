@@ -8,13 +8,12 @@ def retrieve_most_relevant_chunk(
     chunk_size: int,
 ) -> str:
     chunks = chunk_text(document, chunk_size)
-    
 
     if not chunks:
         raise ValueError("document must contain text")
     if not query.strip():
         raise ValueError("query must contain text")
-    
+
     query_frequencies = word_frequencies(query)
     scores: list[float] = []
 

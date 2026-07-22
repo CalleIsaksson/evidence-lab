@@ -1,5 +1,6 @@
 from evidence_lab.retrieval import retrieve_most_relevant_chunk
 
+
 def main() -> None:
     try:
         document = input("Document: ")
@@ -16,6 +17,7 @@ def main() -> None:
 
     except ValueError as error:
         print(f"Error: {error}")
+
 
 if __name__ == "__main__":
     main()
