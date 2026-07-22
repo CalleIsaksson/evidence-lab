@@ -33,3 +33,13 @@ Most relevant chunk: hund springer
 ```powershell
 python -m pytest
 ```
+
+## Teknikval
+
+- **FastAPI** används för att ta emot och validera HTTP-anrop med JSON.
+- **Uvicorn** kör FastAPI-applikationen som en lokal webbserver.
+- **HTTPX** används av API-testerna för att skicka testanrop utan att starta
+  servern manuellt.
+
+Projektet använder dessa små, avgränsade verktyg i stället för ett större
+webbramverk. Retrieval-logiken förblir vanlig Python och kan användas utan API:t.
