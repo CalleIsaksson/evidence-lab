@@ -35,5 +35,30 @@ def test_retrieve_rejects_empty_query() -> None:
         },
     )
 
-    assert response.status_code == 400
-    assert response.json() == {"detail": "query must contain text"}
+    assert response.status_code == 422
+
+
+def test_retrieve_rejects_non_positive_chunk_size() -> None:
+    response = client.post(
+        "/retrieve",
+        json={
+            "document": "katt sover",
+            "query": "katt",
+            "chunk_size": 0,
+        },
+    )
+
+    assert response.status_code == 422
+
+
+def test_retrieve_rejects_empty_document() -> None:
+    response = client.post(
+        "/retrieve",
+        json={
+            "document": "",
+            "query": "katt",
+            "chunk_size": 2,
+        },
+    )
+
+    assert response.status_code == 422
