@@ -10,5 +10,3 @@ def chunk_text(text: str, chunk_size: int) -> list[str]:
         chunks.append(" ".join(chunk_words))
 
     return chunks
-
-

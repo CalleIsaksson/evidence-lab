@@ -1,6 +1,5 @@
 import pytest
 
-
 from evidence_lab.similarity import cosine_similarity, word_frequencies
 
 

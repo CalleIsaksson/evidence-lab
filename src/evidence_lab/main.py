@@ -1,4 +1,4 @@
-from evidence_lab.retrieval import retrieve_most_relevant_chunk
+from evidence_lab.retrieval import retrieve_most_relevant_chunks
 
 
 def main() -> None:
@@ -6,14 +6,16 @@ def main() -> None:
         document = input("Document: ")
         query = input("Query: ")
         chunk_size = int(input("Chunk size: "))
+        num_chunks = int(input("Number of Chunks: "))
 
-        best_chunk = retrieve_most_relevant_chunk(
+        best_chunks = retrieve_most_relevant_chunks(
             document,
             query,
             chunk_size,
+            num_chunks,
         )
 
-        print(f"Most relevant chunk: {best_chunk}")
+        print(f"Most relevant chunks: {best_chunks}")
 
     except ValueError as error:
         print(f"Error: {error}")
