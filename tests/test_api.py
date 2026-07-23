@@ -76,3 +76,17 @@ def test_retrieve_rejects_empty_document() -> None:
     )
 
     assert response.status_code == 422
+
+
+def test_retrieve_rejects_space_document() -> None:
+    response = client.post(
+        "/retrieve",
+        json={
+            "document": " ",
+            "query": "katt",
+            "chunk_size": 2,
+        },
+    )
+
+    assert response.status_code == 400
+    assert response.json() == {"detail": "document must contain text"}
