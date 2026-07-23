@@ -28,6 +28,19 @@ Chunk size: 2
 Most relevant chunk: hund springer
 ```
 
+## Starta REST-API:t
+
+Kör följande från projektmappen i PowerShell:
+
+```powershell
+.\.venv\Scripts\python.exe -m uvicorn evidence_lab.api:app --app-dir src --reload
+```
+
+API:t är sedan tillgängligt på:
+
+- http://127.0.0.1:8000
+- interaktiv dokumentation: http://127.0.0.1:8000/docs
+
 ## Köra tester
 
 ```powershell
