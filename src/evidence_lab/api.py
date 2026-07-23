@@ -10,6 +10,10 @@ class RetrievalRequest(BaseModel):
     chunk_size: int = Field(gt=0)
 
 
+class RetrievalResponse(BaseModel):
+    best_chunk: str
+
+
 app = FastAPI(title="EvidenceLab")
 
 
@@ -19,7 +23,7 @@ def health() -> dict[str, str]:
 
 
 @app.post("/retrieve")
-def retrieve(request: RetrievalRequest) -> dict[str, str]:
+def retrieve(request: RetrievalRequest) -> RetrievalResponse:
     try:
         best_chunk = retrieve_most_relevant_chunk(
             request.document,
@@ -29,4 +33,4 @@ def retrieve(request: RetrievalRequest) -> dict[str, str]:
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error))
 
-    return {"best_chunk": best_chunk}
+    return RetrievalResponse(best_chunk=best_chunk)
