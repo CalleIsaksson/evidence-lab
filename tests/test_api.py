@@ -119,6 +119,7 @@ def test_retrieve_rejects_no_query() -> None:
             "chunk_size": 2,
         },
     )
+
     assert response.status_code == 422
 
 

@@ -1,6 +1,5 @@
 import pytest
 
-
 from evidence_lab.chunking import chunk_text
 
 

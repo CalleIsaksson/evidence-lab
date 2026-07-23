@@ -1,6 +1,5 @@
 import pytest
 
-
 from evidence_lab.retrieval import retrieve_most_relevant_chunks
 
 

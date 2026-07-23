@@ -8,7 +8,7 @@ Den första versionen är en liten Python-applikation utan ramverk. Den:
 - delar ett dokument i ord-baserade chunks
 - räknar ordens förekomster
 - jämför varje chunk med en fråga med cosinuslikhet
-- returnerar den mest relevanta chunken
+- returnerar de mest relevanta chunkarna i rankad ordning
 
 ## Starta programmet
 
