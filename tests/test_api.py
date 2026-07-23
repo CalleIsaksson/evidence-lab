@@ -38,6 +38,20 @@ def test_retrieve_rejects_empty_query() -> None:
     assert response.status_code == 422
 
 
+def test_retrieve_rejects_space_query() -> None:
+    response = client.post(
+        "/retrieve",
+        json={
+            "document": "katt sover",
+            "query": " ",
+            "chunk_size": 2,
+        },
+    )
+
+    assert response.status_code == 400
+    assert response.json() == {"detail": "query must contain text"}
+
+
 def test_retrieve_rejects_non_positive_chunk_size() -> None:
     response = client.post(
         "/retrieve",
