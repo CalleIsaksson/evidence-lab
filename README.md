@@ -28,8 +28,59 @@ Chunk size: 2
 Most relevant chunk: hund springer
 ```
 
+## Starta REST-API:t
+
+Kör följande från projektmappen i PowerShell:
+
+```powershell
+.\.venv\Scripts\python.exe -m uvicorn evidence_lab.api:app --app-dir src --reload
+```
+
+API:t är sedan tillgängligt på:
+
+- http://127.0.0.1:8000
+- interaktiv dokumentation: http://127.0.0.1:8000/docs
+
+Här skapar vi ett PowerShell objekt med "document", "query" och "chunk_size". Sedan omvandlar vi objektet till JSON format.
+
+```powershell
+$body = @{
+    document = "katt sover hund springer"
+    query = "hund"
+    chunk_size = 2
+} | ConvertTo-Json
+```
+
+Sedan skickar vi JSON till POST /retrieve med Invoke-RestMethod.
+
+```powershell
+Invoke-RestMethod `
+    -Method Post `
+    -Uri "http://127.0.0.1:8000/retrieve" `
+    -ContentType "application/json" `
+    -Body $body
+```
+
+När man kör följande kod får man:
+
+```text
+best_chunk
+----------
+hund springer
+```
+
 ## Köra tester
 
 ```powershell
 python -m pytest
 ```
+
+## Teknikval
+
+- **FastAPI** används för att ta emot och validera HTTP-anrop med JSON.
+- **Uvicorn** kör FastAPI-applikationen som en lokal webbserver.
+- **HTTPX2** används av API-testerna för att skicka testanrop utan att starta
+  servern manuellt.
+
+Projektet använder dessa små, avgränsade verktyg i stället för ett större
+webbramverk. Retrieval-logiken förblir vanlig Python och kan användas utan API:t.
