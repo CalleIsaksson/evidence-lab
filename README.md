@@ -25,7 +25,8 @@ Exempel på inmatning:
 Document: katt sover hund springer
 Query: hund
 Chunk size: 2
-Most relevant chunk: hund springer
+Number of Chunks: 1
+Most relevant chunks: ['hund springer']
 ```
 
 ## Starta REST-API:t
@@ -41,13 +42,14 @@ API:t är sedan tillgängligt på:
 - http://127.0.0.1:8000
 - interaktiv dokumentation: http://127.0.0.1:8000/docs
 
-Här skapar vi ett PowerShell objekt med "document", "query" och "chunk_size". Sedan omvandlar vi objektet till JSON format.
+Här skapar vi ett PowerShell objekt med "document", "query", "chunk_size" och "num_chunks". Sedan omvandlar vi objektet till JSON format.
 
 ```powershell
 $body = @{
     document = "katt sover hund springer"
     query = "hund"
     chunk_size = 2
+    num_chunks = 1
 } | ConvertTo-Json
 ```
 
@@ -64,9 +66,9 @@ Invoke-RestMethod `
 När man kör följande kod får man:
 
 ```text
-best_chunk
-----------
-hund springer
+best_chunks
+-----------
+{hund springer}
 ```
 
 ## Köra tester
