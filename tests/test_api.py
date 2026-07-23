@@ -24,3 +24,16 @@ def test_retrieve_returns_best_chunk() -> None:
 
     assert response.status_code == 200
     assert response.json() == {"best_chunk": "hund springer"}
+
+def test_retrieve_rejects_empty_query() -> None:
+    response = client.post(
+        "/retrieve",
+        json={
+            "document": "katt sover",
+            "query": "",
+            "chunk_size": 2,
+        },
+    )
+
+    assert response.status_code == 400
+    assert response.json() == {"detail": "query must contain text"}
