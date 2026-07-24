@@ -22,3 +22,26 @@ def reciprocal_rank(
         position += 1
 
     return 0.0
+
+
+def mean_reciprocal_rank(
+    retrieved_results: list[list[str]],
+    relevant_chunks: list[str],
+) -> float:
+    if len(retrieved_results) != len(relevant_chunks):
+        raise ValueError(
+            "retrieved results and relevant chunks must have the same length"
+        )
+
+    if not retrieved_results:
+        return 0.0
+
+    total = 0.0
+
+    for index in range(len(retrieved_results)):
+        total += reciprocal_rank(
+            retrieved_results[index],
+            relevant_chunks[index],
+        )
+
+    return total / len(retrieved_results)
