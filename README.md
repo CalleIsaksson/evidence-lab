@@ -71,6 +71,38 @@ best_chunks
 {hund springer}
 ```
 
+Här skapar vi ett Powershell objekt med "document", "queries", "relevant_chunks", "chunk_size" och "num_chunks", för att sedan omvandla det till JSON-format. Endpointen kör flera queries mot samma dokument och sammanfattar kvaliten på retrievalen vi utför med 2 metrics, Hit Rate och Mean Reciprocal Rank (MRR).
+
+```powershell
+$evaluationBody = @{
+    document = "hund springer katt sover"
+    queries = @("hund", "katt")
+    relevant_chunks = @("hund springer", "katt sover")
+    chunk_size = 2
+    num_chunks = 1
+} | ConvertTo-Json
+```
+
+Sedan skickar vi JSON till POST /evaluate med Invoke-RestMethod.
+
+```powershell
+Invoke-RestMethod `
+    -Method Post `
+    -Uri "http://127.0.0.1:8000/evaluate" `
+    -ContentType "application/json" `
+    -Body $evaluationBody |
+    ConvertTo-Json
+```
+
+När man kör följande kod får man:
+
+```json
+{
+  "hit_rate": 1.0,
+  "mean_reciprocal_rank": 1.0
+}
+```
+
 ## Köra tester
 
 ```powershell
@@ -85,4 +117,4 @@ python -m pytest
   servern manuellt.
 
 Projektet använder dessa små, avgränsade verktyg i stället för ett större
-webbramverk. Retrieval-logiken förblir vanlig Python och kan användas utan API:t.
+webbramverk. Retrieval logiken förblir vanlig Python och kan användas utan API:t.
