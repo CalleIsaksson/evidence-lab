@@ -123,3 +123,40 @@ def test_evaluate_retrieval_returns_metrics() -> None:
         "hit_rate": 1.0,
         "mean_reciprocal_rank": 1.0,
     }
+
+
+def test_evaluate_retrieval_rejects_different_query_and_relevant_chunk_counts() -> None:
+    document = "man käkar hund sover"
+    queries = ["man", "hund", "bowser"]
+    relevant_chunks = ["man käkar", "hund sover"]
+    chunk_size = 2
+    num_chunks = 1
+
+    with pytest.raises(ValueError):
+        evaluate_retrieval(
+            document,
+            queries,
+            relevant_chunks,
+            chunk_size,
+            num_chunks,
+        )
+
+
+def test_evaluate_retrieval_with_empty_lists_returns_zero() -> None:
+    document = "man käkar hund sover"
+    queries = []
+    relevant_chunks = []
+    chunk_size = 3
+    num_chunks = 1
+
+    result = evaluate_retrieval(
+        document,
+        queries,
+        relevant_chunks,
+        chunk_size,
+        num_chunks,
+    )
+    assert result == {
+        "hit_rate": 0.0,
+        "mean_reciprocal_rank": 0.0,
+    }
