@@ -1,14 +1,15 @@
 # EvidenceLab
 
-EvidenceLab är ett stegvis portfolio-projekt för att lära sig bygga och
-utvärdera system för dokumentsökning och RAG.
+EvidenceLab är ett portfolio projekt för dokumentsökning och utvärdering av retrieval system.
 
-Den första versionen är en liten Python-applikation utan ramverk. Den:
+Projektet:
 
-- delar ett dokument i ord-baserade chunks
-- räknar ordens förekomster
-- jämför varje chunk med en fråga med cosinuslikhet
+- delar dokument i ord-baserade chunks
+- räknar ordfrekvenser
+- jämför chunks med en fråga genom cosinuslikhet
 - returnerar de mest relevanta chunkarna i rankad ordning
+- erbjuder retrieval genom både terminalen och ett REST API
+- utvärderar flera sökningar med två metrics: Hit Rate och Mean Reciprocal Rank (MRR)
 
 ## Starta programmet
 
