@@ -1,6 +1,7 @@
 import pytest
 
 from evidence_lab.evaluation import (
+    evaluate_retrieval,
     hit_at_k,
     hit_rate_at_k,
     mean_reciprocal_rank,
@@ -102,3 +103,23 @@ def test_mean_reciprocal_rank_gives_zero_for_empty_lists() -> None:
 
     result = mean_reciprocal_rank(retrieved_results, relevant_chunks)
     assert result == 0.0
+
+
+def test_evaluate_retrieval_returns_metrics() -> None:
+    document = "man käkar hund sover"
+    queries = ["man", "hund"]
+    relevant_chunks = ["man käkar", "hund sover"]
+    chunk_size = 2
+    num_chunks = 1
+
+    result = evaluate_retrieval(
+        document,
+        queries,
+        relevant_chunks,
+        chunk_size,
+        num_chunks,
+    )
+    assert result == {
+        "hit_rate": 1.0,
+        "mean_reciprocal_rank": 1.0,
+    }

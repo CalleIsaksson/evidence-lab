@@ -1,3 +1,6 @@
+from evidence_lab.retrieval import retrieve_most_relevant_chunks
+
+
 def hit_at_k(
     retrieved_chunks: list[str],
     relevant_chunk: str,
@@ -66,3 +69,30 @@ def mean_reciprocal_rank(
         )
 
     return total / len(retrieved_results)
+
+
+def evaluate_retrieval(
+    document: str,
+    queries: list[str],
+    relevant_chunks: list[str],
+    chunk_size: int,
+    num_chunks: int,
+) -> dict[str, float]:
+    results: list[list[str]] = []
+
+    for query in queries:
+        chunks = retrieve_most_relevant_chunks(
+            document,
+            query,
+            chunk_size,
+            num_chunks,
+        )
+        results.append(chunks)
+
+    hit_rate = hit_rate_at_k(results, relevant_chunks)
+    mrr = mean_reciprocal_rank(results, relevant_chunks)
+
+    return {
+        "hit_rate": hit_rate,
+        "mean_reciprocal_rank": mrr,
+    }
