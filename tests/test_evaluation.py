@@ -2,6 +2,7 @@ import pytest
 
 from evidence_lab.evaluation import (
     hit_at_k,
+    hit_rate_at_k,
     mean_reciprocal_rank,
     reciprocal_rank,
 )
@@ -17,6 +18,40 @@ def test_hit_at_k_returns_false_when_relevant_chunk_is_not_retrieved() -> None:
     retrieved_chunks = ["data dog", "did i", "do that"]
     result = hit_at_k(retrieved_chunks, "cat sleeps")
     assert result is False
+
+
+def test_hit_rate_at_k_returns_correct_value() -> None:
+    retrieved_results = [["data dog"], ["did i"]]
+    relevant_chunks = ["data dog", "cat man"]
+    result = hit_rate_at_k(retrieved_results, relevant_chunks)
+    assert result == 0.5
+
+
+def test_hit_rate_at_k_returns_zero_when_no_relevant_chunks_are_retrieved() -> None:
+    retrieved_results = [["crazy man"], ["did i"]]
+    relevant_chunks = ["data dog", "cat man"]
+    result = hit_rate_at_k(retrieved_results, relevant_chunks)
+    assert result == 0.0
+
+
+def test_hit_rate_at_k_returns_zero_for_empty_lists() -> None:
+    retrieved_results = []
+    relevant_chunks = []
+    result = hit_rate_at_k(retrieved_results, relevant_chunks)
+    assert result == 0.0
+
+
+def test_hit_rate_at_k_rejects_lists_with_different_lengths() -> None:
+    retrieved_results = [
+        ["hund springer", "katt sover"],
+    ]
+    relevant_chunks = [
+        "hund springer",
+        "katt sover",
+    ]
+
+    with pytest.raises(ValueError):
+        hit_rate_at_k(retrieved_results, relevant_chunks)
 
 
 def test_reciprocal_rank_returns_one_for_first_position() -> None:

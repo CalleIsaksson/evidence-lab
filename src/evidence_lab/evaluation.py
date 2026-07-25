@@ -9,6 +9,27 @@ def hit_at_k(
     return False
 
 
+def hit_rate_at_k(
+    retrieved_results: list[list[str]],
+    relevant_chunks: list[str],
+) -> float:
+    if len(retrieved_results) != len(relevant_chunks):
+        raise ValueError(
+            "retrieved results and relevant chunks must have the same length"
+        )
+
+    if not retrieved_results:
+        return 0.0
+
+    hits = 0
+
+    for index in range(len(retrieved_results)):
+        if hit_at_k(retrieved_results[index], relevant_chunks[index]):
+            hits += 1
+
+    return hits / len(retrieved_results)
+
+
 def reciprocal_rank(
     retrieved_chunks: list[str],
     relevant_chunk: str,
