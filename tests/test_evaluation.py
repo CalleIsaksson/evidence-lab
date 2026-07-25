@@ -1,0 +1,162 @@
+import pytest
+
+from evidence_lab.evaluation import (
+    evaluate_retrieval,
+    hit_at_k,
+    hit_rate_at_k,
+    mean_reciprocal_rank,
+    reciprocal_rank,
+)
+
+
+def test_hit_at_k_returns_true_when_relevant_chunk_is_retrieved() -> None:
+    retrieved_chunks = ["data dog", "did i", "do that"]
+    result = hit_at_k(retrieved_chunks, "data dog")
+    assert result is True
+
+
+def test_hit_at_k_returns_false_when_relevant_chunk_is_not_retrieved() -> None:
+    retrieved_chunks = ["data dog", "did i", "do that"]
+    result = hit_at_k(retrieved_chunks, "cat sleeps")
+    assert result is False
+
+
+def test_hit_rate_at_k_returns_correct_value() -> None:
+    retrieved_results = [["data dog"], ["did i"]]
+    relevant_chunks = ["data dog", "cat man"]
+    result = hit_rate_at_k(retrieved_results, relevant_chunks)
+    assert result == 0.5
+
+
+def test_hit_rate_at_k_returns_zero_when_no_relevant_chunks_are_retrieved() -> None:
+    retrieved_results = [["crazy man"], ["did i"]]
+    relevant_chunks = ["data dog", "cat man"]
+    result = hit_rate_at_k(retrieved_results, relevant_chunks)
+    assert result == 0.0
+
+
+def test_hit_rate_at_k_returns_zero_for_empty_lists() -> None:
+    retrieved_results = []
+    relevant_chunks = []
+    result = hit_rate_at_k(retrieved_results, relevant_chunks)
+    assert result == 0.0
+
+
+def test_hit_rate_at_k_rejects_lists_with_different_lengths() -> None:
+    retrieved_results = [
+        ["hund springer", "katt sover"],
+    ]
+    relevant_chunks = [
+        "hund springer",
+        "katt sover",
+    ]
+
+    with pytest.raises(ValueError):
+        hit_rate_at_k(retrieved_results, relevant_chunks)
+
+
+def test_reciprocal_rank_returns_one_for_first_position() -> None:
+    retrieved_chunks = ["data dog", "did i", "do that"]
+    result = reciprocal_rank(retrieved_chunks, "data dog")
+    assert result == 1.0
+
+
+def test_reciprocal_rank_returns_half_for_second_position() -> None:
+    retrieved_chunks = ["data dog", "did i", "do that"]
+    result = reciprocal_rank(retrieved_chunks, "did i")
+    assert result == 0.5
+
+
+def test_reciprocal_rank_returns_zero_when_relevant_chunk_is_not_retrieved() -> None:
+    retrieved_chunks = ["data dog", "did i", "do that"]
+    result = reciprocal_rank(retrieved_chunks, "gosh darnit")
+    assert result == 0.0
+
+
+def test_mean_reciprocal_rank_rejects_lists_with_different_lengths() -> None:
+    retrieved_results = [
+        ["hund springer", "katt sover"],
+    ]
+    relevant_chunks = [
+        "hund springer",
+        "katt sover",
+    ]
+
+    with pytest.raises(ValueError):
+        mean_reciprocal_rank(retrieved_results, relevant_chunks)
+
+
+def test_mean_reciprocal_rank_averages_search_results() -> None:
+    retrieved_results = [
+        ["hund sover", "katt äter"],
+        ["hund sover", "katt äter"],
+    ]
+    relevant_chunks = ["hund sover", "katt äter"]
+
+    result = mean_reciprocal_rank(retrieved_results, relevant_chunks)
+    assert result == 0.75
+
+
+def test_mean_reciprocal_rank_gives_zero_for_empty_lists() -> None:
+    retrieved_results = []
+    relevant_chunks = []
+
+    result = mean_reciprocal_rank(retrieved_results, relevant_chunks)
+    assert result == 0.0
+
+
+def test_evaluate_retrieval_returns_metrics() -> None:
+    document = "man käkar hund sover"
+    queries = ["man", "hund"]
+    relevant_chunks = ["man käkar", "hund sover"]
+    chunk_size = 2
+    num_chunks = 1
+
+    result = evaluate_retrieval(
+        document,
+        queries,
+        relevant_chunks,
+        chunk_size,
+        num_chunks,
+    )
+    assert result == {
+        "hit_rate": 1.0,
+        "mean_reciprocal_rank": 1.0,
+    }
+
+
+def test_evaluate_retrieval_rejects_different_query_and_relevant_chunk_counts() -> None:
+    document = "man käkar hund sover"
+    queries = ["man", "hund", "bowser"]
+    relevant_chunks = ["man käkar", "hund sover"]
+    chunk_size = 2
+    num_chunks = 1
+
+    with pytest.raises(ValueError):
+        evaluate_retrieval(
+            document,
+            queries,
+            relevant_chunks,
+            chunk_size,
+            num_chunks,
+        )
+
+
+def test_evaluate_retrieval_with_empty_lists_returns_zero() -> None:
+    document = "man käkar hund sover"
+    queries = []
+    relevant_chunks = []
+    chunk_size = 3
+    num_chunks = 1
+
+    result = evaluate_retrieval(
+        document,
+        queries,
+        relevant_chunks,
+        chunk_size,
+        num_chunks,
+    )
+    assert result == {
+        "hit_rate": 0.0,
+        "mean_reciprocal_rank": 0.0,
+    }
