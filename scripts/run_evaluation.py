@@ -2,6 +2,8 @@ import json
 from pathlib import Path
 from typing import TypedDict, cast
 
+from evidence_lab.baselines import rank_chunks_with_tfidf
+from evidence_lab.chunking import chunk_text
 from evidence_lab.evaluation import hit_rate_at_k, mean_reciprocal_rank
 from evidence_lab.retrieval import retrieve_most_relevant_chunks
 
@@ -46,7 +48,14 @@ def prepare_evaluation_inputs(
         chunk["id"]: chunk["text"]
         for chunk in data["chunks"]
     }
-    document = " ".join(chunk["text"] for chunk in data["chunks"])
+    expected_chunks = [chunk["text"] for chunk in data["chunks"]]
+    document = " ".join(expected_chunks)
+
+    if chunk_text(document, data["chunk_size"]) != expected_chunks:
+        raise ValueError(
+            "evaluation chunks must match the configured chunk size"
+        )
+
     queries = [item["query"] for item in data["queries"]]
     relevant_chunks = [
         chunks_by_id[item["relevant_chunk_id"]]
@@ -91,6 +100,14 @@ def evaluate_word_frequency(data: EvaluationData) -> EvaluationMetrics:
     return calculate_metrics(retrieved_results, relevant_chunks)
 
 
+def evaluate_tfidf(data: EvaluationData) -> EvaluationMetrics:
+    _, queries, relevant_chunks, _ = prepare_evaluation_inputs(data)
+    chunks = [chunk["text"] for chunk in data["chunks"]]
+    retrieved_results = rank_chunks_with_tfidf(chunks, queries)
+
+    return calculate_metrics(retrieved_results, relevant_chunks)
+
+
 def format_results_table(
     results: dict[str, EvaluationMetrics],
 ) -> str:
@@ -114,6 +131,7 @@ def main() -> None:
     data = load_evaluation_data(DEFAULT_DATA_PATH)
     results = {
         "Word frequency + cosine": evaluate_word_frequency(data),
+        "TF-IDF + cosine": evaluate_tfidf(data),
     }
     print(format_results_table(results))
 

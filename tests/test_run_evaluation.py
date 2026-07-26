@@ -3,8 +3,10 @@ from pathlib import Path
 import pytest
 
 from scripts.run_evaluation import (
+    DEFAULT_DATA_PATH,
     EvaluationData,
     calculate_metrics,
+    evaluate_tfidf,
     evaluate_word_frequency,
     format_results_table,
     load_evaluation_data,
@@ -70,6 +72,46 @@ def test_evaluate_word_frequency_returns_expected_metrics() -> None:
         "hit_rate_at_3": 1.0,
         "mean_reciprocal_rank": 1.0,
     }
+
+
+def test_evaluate_tfidf_returns_expected_metrics() -> None:
+    result = evaluate_tfidf(create_evaluation_data())
+
+    assert result == {
+        "hit_rate_at_1": 1.0,
+        "hit_rate_at_3": 1.0,
+        "mean_reciprocal_rank": 1.0,
+    }
+
+
+def test_prepare_evaluation_inputs_rejects_incorrect_chunk_size() -> None:
+    data = create_evaluation_data()
+    data["chunk_size"] = 3
+
+    with pytest.raises(
+        ValueError,
+        match="evaluation chunks must match the configured chunk size",
+    ):
+        prepare_evaluation_inputs(data)
+
+
+def test_real_evaluation_dataset_has_reproducible_results() -> None:
+    data = load_evaluation_data(DEFAULT_DATA_PATH)
+
+    assert evaluate_word_frequency(data) == pytest.approx(
+        {
+            "hit_rate_at_1": 0.6666666667,
+            "hit_rate_at_3": 0.8333333333,
+            "mean_reciprocal_rank": 0.7694444444,
+        }
+    )
+    assert evaluate_tfidf(data) == pytest.approx(
+        {
+            "hit_rate_at_1": 0.8333333333,
+            "hit_rate_at_3": 0.8333333333,
+            "mean_reciprocal_rank": 0.8666666667,
+        }
+    )
 
 
 def test_calculate_metrics_and_format_results_table() -> None:
