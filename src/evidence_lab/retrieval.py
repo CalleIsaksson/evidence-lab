@@ -18,13 +18,13 @@ def retrieve_most_relevant_chunks(
         raise ValueError("number of chunks must be greater than 0")
 
     query_frequencies = word_frequencies(query)
-    scores: dict[str, float] = {}
+    scores: list[tuple[str, float]] = []
 
     for chunk in chunks:
         chunk_frequencies = word_frequencies(chunk)
         score = cosine_similarity(chunk_frequencies, query_frequencies)
-        scores[chunk] = score
+        scores.append((chunk, score))
 
-    ranked_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    ranked_scores = sorted(scores, key=lambda x: x[1], reverse=True)
 
     return [chunk for chunk, _score in ranked_scores[:num_chunks]]

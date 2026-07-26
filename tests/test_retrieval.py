@@ -41,3 +41,16 @@ def test_ranked_retrieval_works() -> None:
 def test_retrieve_rejects_non_positive_num_chunks() -> None:
     with pytest.raises(ValueError):
         retrieve_most_relevant_chunks("katt sover", "katt", 2, 0)
+
+
+def test_retrieve_preserves_duplicate_chunks() -> None:
+    document = "hund springer hund springer katt sover"
+
+    result = retrieve_most_relevant_chunks(
+        document,
+        query="hund",
+        chunk_size=2,
+        num_chunks=2,
+    )
+
+    assert result == ["hund springer", "hund springer"]
