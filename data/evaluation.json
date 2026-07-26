@@ -1,0 +1,89 @@
+{
+  "name": "workplace_it_support",
+  "description": "A small synthetic knowledge base for reproducible retrieval evaluation.",
+  "chunk_size": 25,
+  "chunks": [
+    {
+      "id": "password-reset",
+      "text": "Employees who forget passwords can request a reset link from the sign-in page. The link expires after fifteen minutes and can only be used once."
+    },
+    {
+      "id": "multi-factor-authentication",
+      "text": "Multi-factor authentication protects each account by requiring a temporary code after the password. Employees can generate codes with an approved authenticator application on their phone."
+    },
+    {
+      "id": "remote-access",
+      "text": "Remote employees must connect through the company VPN before accessing internal tools. The online help desk provides installation instructions for Windows, macOS, and Linux devices."
+    },
+    {
+      "id": "laptop-delivery",
+      "text": "New laptops are shipped within three business days after manager approval. Employees receive a tracking email when the equipment leaves the distribution center for delivery."
+    },
+    {
+      "id": "damaged-equipment",
+      "text": "Damaged equipment should be reported to IT support immediately. The employee receives a prepaid return label and must send the device within ten days back."
+    },
+    {
+      "id": "employee-departure",
+      "text": "When an employee leaves the company, access is disabled at the end of their final workday. Company devices must be returned before the departure date."
+    },
+    {
+      "id": "data-export",
+      "text": "Employees can download a copy of their personal profile data from account settings. Export requests are prepared as encrypted files within twenty-four hours for download."
+    },
+    {
+      "id": "security-incident",
+      "text": "Security incidents such as suspicious emails or unexpected login prompts must be reported through the incident portal. Urgent reports are reviewed by on-call analysts immediately."
+    }
+  ],
+  "queries": [
+    {
+      "query": "reset link for forgotten password",
+      "relevant_chunk_id": "password-reset"
+    },
+    {
+      "query": "temporary authentication code",
+      "relevant_chunk_id": "multi-factor-authentication"
+    },
+    {
+      "query": "connect to internal tools through VPN",
+      "relevant_chunk_id": "remote-access"
+    },
+    {
+      "query": "track a new laptop delivery",
+      "relevant_chunk_id": "laptop-delivery"
+    },
+    {
+      "query": "return damaged device",
+      "relevant_chunk_id": "damaged-equipment"
+    },
+    {
+      "query": "disable company access when employee leaves",
+      "relevant_chunk_id": "employee-departure"
+    },
+    {
+      "query": "download personal profile data",
+      "relevant_chunk_id": "data-export"
+    },
+    {
+      "query": "report suspicious login prompts",
+      "relevant_chunk_id": "security-incident"
+    },
+    {
+      "query": "two factor verification",
+      "relevant_chunk_id": "multi-factor-authentication"
+    },
+    {
+      "query": "replace broken hardware",
+      "relevant_chunk_id": "damaged-equipment"
+    },
+    {
+      "query": "where is my parcel",
+      "relevant_chunk_id": "laptop-delivery"
+    },
+    {
+      "query": "staff departure account shutdown",
+      "relevant_chunk_id": "employee-departure"
+    }
+  ]
+}
