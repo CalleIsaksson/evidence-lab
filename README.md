@@ -1,60 +1,60 @@
 # EvidenceLab
 
-EvidenceLab är ett portfolio projekt för dokumentsökning och utvärdering av retrieval system.
+EvidenceLab is a portfolio project for classical information retrieval and retrieval evaluation.
 
-Projektet:
+The project:
 
-- delar dokument i ord-baserade chunks
-- räknar ordfrekvenser
-- jämför chunks med en fråga genom cosinuslikhet
-- returnerar de mest relevanta chunkarna i rankad ordning
-- erbjuder retrieval genom både terminalen och ett REST API
-- utvärderar flera sökningar med två metrics: Hit Rate och Mean Reciprocal Rank (MRR)
+* splits documents into word-based chunks
+* represents chunks and queries using word-frequency vectors
+* compares chunks with a query using cosine similarity
+* returns the most relevant chunks in ranked order
+* provides retrieval through both a command-line interface and a REST API
+* evaluates multiple searches using two metrics: Hit Rate and Mean Reciprocal Rank (MRR)
 
-## Starta programmet
+## Start the program
 
-Aktivera den virtuella miljön och kör följande från projektmappen i PowerShell:
+Activate the virtual environment and run the following command from the project folder in PowerShell:
 
 ```powershell
 $env:PYTHONPATH = "src"
 python -m evidence_lab.main
 ```
 
-Exempel på inmatning:
+Example input:
 
 ```text
-Document: katt sover hund springer
-Query: hund
+Document: cat sleeps dog runs
+Query: dog
 Chunk size: 2
 Number of Chunks: 1
-Most relevant chunks: ['hund springer']
+Most relevant chunks: ['dog runs']
 ```
 
-## Starta REST-API:t
+## Start the REST API
 
-Kör följande från projektmappen i PowerShell:
+Run the following command from the project folder in PowerShell:
 
 ```powershell
 .\.venv\Scripts\python.exe -m uvicorn evidence_lab.api:app --app-dir src --reload
 ```
 
-API:t är sedan tillgängligt på:
+The API is then available at:
 
-- http://127.0.0.1:8000
-- interaktiv dokumentation: http://127.0.0.1:8000/docs
+* http://127.0.0.1:8000
+* interactive documentation: http://127.0.0.1:8000/docs
 
-Här skapar vi ett PowerShell objekt med "document", "query", "chunk_size" och "num_chunks". Sedan omvandlar vi objektet till JSON format.
+Here we create a PowerShell object containing `document`, `query`, `chunk_size` and `num_chunks`. The object is then converted to JSON format.
 
 ```powershell
 $body = @{
-    document = "katt sover hund springer"
-    query = "hund"
+    document = "cat sleeps dog runs"
+    query = "dog"
     chunk_size = 2
     num_chunks = 1
 } | ConvertTo-Json
 ```
 
-Sedan skickar vi JSON till POST /retrieve med Invoke-RestMethod.
+The JSON data is then sent to `POST /retrieve` using `Invoke-RestMethod`.
 
 ```powershell
 Invoke-RestMethod `
@@ -64,27 +64,29 @@ Invoke-RestMethod `
     -Body $body
 ```
 
-När man kör följande kod får man:
+Running the command returns:
 
 ```text
 best_chunks
 -----------
-{hund springer}
+{dog runs}
 ```
 
-Här skapar vi ett Powershell objekt med "document", "queries", "relevant_chunks", "chunk_size" och "num_chunks", för att sedan omvandla det till JSON-format. Endpointen kör flera queries mot samma dokument och sammanfattar kvaliten på retrievalen vi utför med 2 metrics, Hit Rate och Mean Reciprocal Rank (MRR).
+Here we create a PowerShell object containing `document`, `queries`, `relevant_chunks`, `chunk_size` and `num_chunks`. The object is then converted to JSON format.
+
+The endpoint runs multiple queries against the same document and evaluates the quality of the retrieval using two metrics, Hit Rate and Mean Reciprocal Rank (MRR).
 
 ```powershell
 $evaluationBody = @{
-    document = "hund springer katt sover"
-    queries = @("hund", "katt")
-    relevant_chunks = @("hund springer", "katt sover")
+    document = "dog runs cat sleeps"
+    queries = @("dog", "cat")
+    relevant_chunks = @("dog runs", "cat sleeps")
     chunk_size = 2
     num_chunks = 1
 } | ConvertTo-Json
 ```
 
-Sedan skickar vi JSON till POST /evaluate med Invoke-RestMethod.
+The JSON data is then sent to `POST /evaluate` using `Invoke-RestMethod`.
 
 ```powershell
 Invoke-RestMethod `
@@ -95,7 +97,7 @@ Invoke-RestMethod `
     ConvertTo-Json
 ```
 
-När man kör följande kod får man:
+Running the command returns:
 
 ```json
 {
@@ -104,18 +106,16 @@ När man kör följande kod får man:
 }
 ```
 
-## Köra tester
+## Run the tests
 
 ```powershell
 python -m pytest
 ```
 
-## Teknikval
+## Technology choices
 
-- **FastAPI** används för att ta emot och validera HTTP-anrop med JSON.
-- **Uvicorn** kör FastAPI-applikationen som en lokal webbserver.
-- **HTTPX2** används av API-testerna för att skicka testanrop utan att starta
-  servern manuellt.
+* **FastAPI** is used to receive and validate HTTP requests containing JSON data.
+* **Uvicorn** runs the FastAPI application as a local web server.
+* **HTTPX** is used by the API tests to send test requests without manually starting the server.
 
-Projektet använder dessa små, avgränsade verktyg i stället för ett större
-webbramverk. Retrieval logiken förblir vanlig Python och kan användas utan API:t.
+The project uses these small and focused tools instead of a larger web framework. The retrieval logic remains regular Python and can be used without the REST API.
