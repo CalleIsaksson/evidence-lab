@@ -11,6 +11,23 @@ The project:
 * provides retrieval through both a command-line interface and a REST API
 * evaluates multiple searches using two metrics: Hit Rate and Mean Reciprocal Rank (MRR)
 
+## Installation
+
+Clone the repository and open the project folder:
+
+```powershell
+git clone https://github.com/CalleIsaksson/evidence-lab.git
+cd evidence-lab
+```
+
+Create and activate a virtual environment, then install the project and its development dependencies:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -e ".[dev]"
+```
+
 ## Start the program
 
 Activate the virtual environment and run the following command from the project folder in PowerShell:
