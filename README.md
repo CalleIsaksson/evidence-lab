@@ -1,92 +1,141 @@
 # EvidenceLab
 
-EvidenceLab är ett portfolio projekt för dokumentsökning och utvärdering av retrieval system.
+[![Tests](https://github.com/CalleIsaksson/evidence-lab/actions/workflows/tests.yml/badge.svg)](https://github.com/CalleIsaksson/evidence-lab/actions/workflows/tests.yml)
 
-Projektet:
+EvidenceLab is a small, transparent information retrieval project built to
+demonstrate document chunking, ranking, API design, automated testing, and
+reproducible retrieval evaluation.
 
-- delar dokument i ord-baserade chunks
-- räknar ordfrekvenser
-- jämför chunks med en fråga genom cosinuslikhet
-- returnerar de mest relevanta chunkarna i rankad ordning
-- erbjuder retrieval genom både terminalen och ett REST API
-- utvärderar flera sökningar med två metrics: Hit Rate och Mean Reciprocal Rank (MRR)
+The project deliberately uses classical information retrieval rather than
+embeddings or large language models. This makes the ranking logic easy to
+inspect and provides a baseline for future semantic retrieval work.
 
-## Starta programmet
+## Features
 
-Aktivera den virtuella miljön och kör följande från projektmappen i PowerShell:
+* splits documents into fixed-size word chunks
+* represents chunks and queries with word-frequency vectors
+* ranks chunks with cosine similarity
+* compares the custom method with a TF-IDF baseline
+* exposes retrieval and evaluation through a FastAPI REST API
+* provides a command-line interface
+* evaluates ranked results with Hit Rate@1, Hit Rate@3, and MRR
+* runs 61 automated tests locally and in GitHub Actions
+
+## Architecture
+
+The main retrieval flow has four steps:
+
+1. Split the input document into word-based chunks.
+2. Convert each chunk and query into a vector representation.
+3. Calculate cosine similarity and rank the chunks by relevance.
+4. Evaluate the rankings against labeled relevant chunks.
+
+EvidenceLab includes two retrieval methods:
+
+* **Word frequency + cosine** is implemented from scratch and powers the CLI
+  and REST API.
+* **TF-IDF + cosine** uses scikit-learn as an established comparison baseline.
+
+The reproducible evaluation script runs both methods against the same dataset
+and uses the same metrics for a fair comparison.
+
+## Installation
+
+Clone the repository and open the project folder:
 
 ```powershell
-$env:PYTHONPATH = "src"
+git clone https://github.com/CalleIsaksson/evidence-lab.git
+cd evidence-lab
+```
+
+Create and activate a virtual environment, then install the project and its
+development dependencies:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -e ".[dev]"
+```
+
+## Command-line usage
+
+Run the interactive program from the project folder:
+
+```powershell
 python -m evidence_lab.main
 ```
 
-Exempel på inmatning:
+Example:
 
 ```text
-Document: katt sover hund springer
-Query: hund
-Chunk size: 2
+Document: Password reset links expire after fifteen minutes. VPN access requires company authentication.
+Query: VPN authentication
+Chunk size: 7
 Number of Chunks: 1
-Most relevant chunks: ['hund springer']
+Most relevant chunks: ['VPN access requires company authentication.']
 ```
 
-## Starta REST-API:t
+## REST API
 
-Kör följande från projektmappen i PowerShell:
+Start the local API server:
 
 ```powershell
-.\.venv\Scripts\python.exe -m uvicorn evidence_lab.api:app --app-dir src --reload
+python -m uvicorn evidence_lab.api:app --reload
 ```
 
-API:t är sedan tillgängligt på:
+The API is available at `http://127.0.0.1:8000`, with interactive OpenAPI
+documentation at `http://127.0.0.1:8000/docs`.
 
-- http://127.0.0.1:8000
-- interaktiv dokumentation: http://127.0.0.1:8000/docs
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| `GET` | `/health` | Check whether the API is running. |
+| `POST` | `/retrieve` | Return ranked chunks for one query. |
+| `POST` | `/evaluate` | Evaluate several queries against labeled chunks. |
 
-Här skapar vi ett PowerShell objekt med "document", "query", "chunk_size" och "num_chunks". Sedan omvandlar vi objektet till JSON format.
+### Retrieve relevant chunks
+
+Create a JSON request body in PowerShell:
 
 ```powershell
 $body = @{
-    document = "katt sover hund springer"
-    query = "hund"
-    chunk_size = 2
+    document = "Password reset links expire quickly. VPN access requires company authentication."
+    query = "VPN authentication"
+    chunk_size = 5
     num_chunks = 1
 } | ConvertTo-Json
-```
 
-Sedan skickar vi JSON till POST /retrieve med Invoke-RestMethod.
-
-```powershell
 Invoke-RestMethod `
     -Method Post `
     -Uri "http://127.0.0.1:8000/retrieve" `
     -ContentType "application/json" `
-    -Body $body
+    -Body $body |
+    ConvertTo-Json
 ```
 
-När man kör följande kod får man:
+Response:
 
-```text
-best_chunks
------------
-{hund springer}
+```json
+{
+  "best_chunks": [
+    "VPN access requires company authentication."
+  ]
+}
 ```
 
-Här skapar vi ett Powershell objekt med "document", "queries", "relevant_chunks", "chunk_size" och "num_chunks", för att sedan omvandla det till JSON-format. Endpointen kör flera queries mot samma dokument och sammanfattar kvaliten på retrievalen vi utför med 2 metrics, Hit Rate och Mean Reciprocal Rank (MRR).
+### Evaluate retrieval
 
 ```powershell
 $evaluationBody = @{
-    document = "hund springer katt sover"
-    queries = @("hund", "katt")
-    relevant_chunks = @("hund springer", "katt sover")
-    chunk_size = 2
+    document = "Password reset links expire quickly. VPN access requires company authentication."
+    queries = @("reset links", "VPN authentication")
+    relevant_chunks = @(
+        "Password reset links expire quickly.",
+        "VPN access requires company authentication."
+    )
+    chunk_size = 5
     num_chunks = 1
 } | ConvertTo-Json
-```
 
-Sedan skickar vi JSON till POST /evaluate med Invoke-RestMethod.
-
-```powershell
 Invoke-RestMethod `
     -Method Post `
     -Uri "http://127.0.0.1:8000/evaluate" `
@@ -95,7 +144,7 @@ Invoke-RestMethod `
     ConvertTo-Json
 ```
 
-När man kör följande kod får man:
+Response:
 
 ```json
 {
@@ -104,18 +153,71 @@ När man kör följande kod får man:
 }
 ```
 
-## Köra tester
+## Reproducible evaluation
+
+The synthetic IT-support dataset in
+[`data/evaluation.json`](data/evaluation.json) contains eight labeled chunks of
+25 words and 12 queries. It includes direct keyword queries and paraphrased
+queries that expose the limits of lexical retrieval.
+
+Run both retrieval methods against the same dataset:
+
+```powershell
+python scripts/run_evaluation.py
+```
+
+Results:
+
+| Method | Hit Rate@1 | Hit Rate@3 | MRR |
+| --- | ---: | ---: | ---: |
+| Word frequency + cosine | 0.667 | 0.833 | 0.769 |
+| TF-IDF + cosine | 0.833 | 0.833 | 0.867 |
+
+* **Hit Rate@1** is the fraction of queries with the relevant chunk ranked
+  first.
+* **Hit Rate@3** is the fraction with the relevant chunk among the first three
+  results.
+* **MRR** averages the reciprocal rank of the first relevant result.
+
+TF-IDF improves first-position accuracy and MRR on this dataset. Both methods
+remain lexical, so neither can reliably solve queries expressed only through
+unseen synonyms.
+
+## Testing and continuous integration
+
+Run the complete test suite:
 
 ```powershell
 python -m pytest
 ```
 
-## Teknikval
+GitHub Actions performs a clean installation, runs all tests, and executes the
+evaluation script on every push and pull request.
 
-- **FastAPI** används för att ta emot och validera HTTP-anrop med JSON.
-- **Uvicorn** kör FastAPI-applikationen som en lokal webbserver.
-- **HTTPX2** används av API-testerna för att skicka testanrop utan att starta
-  servern manuellt.
+## Limitations
 
-Projektet använder dessa små, avgränsade verktyg i stället för ett större
-webbramverk. Retrieval logiken förblir vanlig Python och kan användas utan API:t.
+* Fixed-size word chunking does not follow sentence or paragraph boundaries.
+* Both retrieval methods depend on lexical overlap and do not understand
+  meaning in the way embedding models do.
+* The evaluation dataset is small and synthetic, so the results demonstrate
+  the workflow rather than general retrieval performance.
+* Zero-similarity ties keep corpus order, which can slightly improve rank-based
+  metrics for unmatched queries.
+* All chunks are ranked in memory; there is no persistent search index.
+* The project does not include an LLM or answer-generation step and is not a
+  complete RAG system.
+
+## Technology choices
+
+* **Python** implements the retrieval and evaluation logic.
+* **FastAPI** validates HTTP requests and exposes the REST API.
+* **Uvicorn** runs the local ASGI server.
+* **scikit-learn** provides the TF-IDF comparison baseline.
+* **Pytest** and **HTTPX** test the Python logic and API behavior.
+* **GitHub Actions** runs the project in a clean CI environment.
+
+## Future work
+
+Natural extensions include a larger evaluation corpus, semantic embeddings,
+an indexed document store, and an optional LLM generation step grounded in the
+retrieved chunks.
