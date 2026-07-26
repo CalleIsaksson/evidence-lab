@@ -11,6 +11,15 @@ The project:
 * provides retrieval through both a command-line interface and a REST API
 * evaluates multiple searches using two metrics: Hit Rate and Mean Reciprocal Rank (MRR)
 
+## Architecture
+
+The data flows through four steps:
+
+1. The document is split into word-based chunks.
+2. The chunks and query are converted into word-frequency vectors.
+3. Cosine similarity is calculated and the chunks are ranked by relevance.
+4. The retrieval results can be evaluated using two metrics, Hit Rate and Mean Reciprocal Rank (MRR).
+
 ## Installation
 
 Clone the repository and open the project folder:
